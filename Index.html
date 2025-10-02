@@ -3,278 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DarkVideo - Video Sharing Platform</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <title>VideoShare</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Roboto', Arial, sans-serif;
         }
-
+        
         body {
-            background-color: #0f0f0f;
-            color: #ffffff;
-            line-height: 1.6;
-        }
-
-        /* Header Styles */
-        .header {
             background-color: #000000;
-            padding: 12px 20px;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: #0a0a0a;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid #303030;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
-
+        
         .logo {
-            display: flex;
-            align-items: center;
-            font-size: 22px;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #ff0000;
         }
-
-        .logo i {
-            margin-right: 10px;
-            font-size: 28px;
-        }
-
+        
         .search-bar {
-            display: flex;
-            width: 50%;
-            max-width: 600px;
-        }
-
-        .search-bar input {
             flex: 1;
-            padding: 10px 15px;
-            background-color: #121212;
-            border: 1px solid #303030;
-            border-right: none;
-            border-radius: 20px 0 0 20px;
+            max-width: 600px;
+            margin: 0 2rem;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 24px;
             color: white;
-            font-size: 16px;
+            font-size: 1rem;
+            outline: none;
         }
-
-        .search-bar button {
-            background-color: #303030;
-            border: 1px solid #303030;
-            border-radius: 0 20px 20px 0;
-            padding: 10px 20px;
-            cursor: pointer;
-            color: white;
+        
+        .search-bar input:focus {
+            border-color: #ff0000;
         }
-
-        /* Main Content */
-        .main-content {
-            display: flex;
-            min-height: calc(100vh - 120px);
-        }
-
-        /* Video Grid */
+        
         .video-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            flex: 1;
+            gap: 1.5rem;
+            padding: 2rem;
         }
-
+        
         .video-card {
-            background-color: #1a1a1a;
-            border-radius: 10px;
+            background-color: #0a0a0a;
+            border-radius: 12px;
             overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-
+        
         .video-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(255, 0, 0, 0.2);
         }
-
+        
         .thumbnail {
             width: 100%;
             height: 180px;
-            background-color: #252525;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .thumbnail video, .thumbnail img {
-            width: 100%;
-            height: 100%;
+            background-color: #333;
             object-fit: cover;
         }
-
-        .duration {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
+        
         .video-info {
-            padding: 12px;
+            padding: 1rem;
         }
-
+        
         .video-title {
-            font-weight: 500;
-            margin-bottom: 8px;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+        
+        .video-description {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-
-        .video-meta {
+        
+        .video-stats {
+            color: #888;
+            font-size: 0.8rem;
             display: flex;
             justify-content: space-between;
-            color: #aaa;
-            font-size: 14px;
         }
-
-        /* Video Player */
-        .video-player {
-            display: none;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .player-container {
-            display: flex;
-            gap: 20px;
-        }
-
-        .main-video {
-            flex: 7;
-        }
-
-        .video-player video {
-            width: 100%;
-            height: 450px;
-            border-radius: 10px;
-            background-color: #000;
-        }
-
-        .video-details {
-            margin-top: 15px;
-        }
-
-        .player-title {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        .player-meta {
-            display: flex;
-            justify-content: space-between;
-            color: #aaa;
-            font-size: 14px;
-            border-bottom: 1px solid #303030;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-
-        .related-videos {
-            flex: 3;
-        }
-
-        .related-title {
-            font-size: 18px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #303030;
-        }
-
-        .related-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .related-video {
-            display: flex;
-            gap: 10px;
-            cursor: pointer;
-        }
-
-        .related-thumbnail {
-            width: 168px;
-            height: 94px;
-            background-color: #252525;
-            border-radius: 5px;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .related-thumbnail video, .related-thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .related-info {
-            flex: 1;
-        }
-
-        .related-video-title {
-            font-size: 14px;
-            margin-bottom: 5px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .related-channel {
-            font-size: 12px;
-            color: #aaa;
-        }
-
-        /* Add Video Button */
-        .add-video-btn {
+        
+        .add-button {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
+            bottom: 2rem;
+            right: 2rem;
             width: 60px;
             height: 60px;
             background-color: #ff0000;
             border-radius: 50%;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
-            z-index: 90;
-            transition: transform 0.3s;
-        }
-
-        .add-video-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .add-video-btn i {
-            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+            font-size: 1.5rem;
+            font-weight: bold;
             color: white;
+            border: none;
+            z-index: 1000;
         }
-
-        /* Modal for adding video */
+        
         .modal {
             display: none;
             position: fixed;
@@ -283,662 +144,262 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            z-index: 2000;
         }
-
+        
         .modal-content {
-            background-color: #1a1a1a;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
+            background-color: #0a0a0a;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 12px;
             max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
+            width: 90%;
+            border: 1px solid #333;
         }
-
+        
         .modal h2 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #aaa;
-        }
-
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 12px;
-            background-color: #121212;
-            border: 1px solid #303030;
-            border-radius: 5px;
-            color: white;
-            font-size: 16px;
-        }
-
-        .form-group textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        .file-upload {
-            border: 2px dashed #303030;
-            padding: 20px;
-            text-align: center;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-
-        .file-upload:hover {
-            border-color: #ff0000;
-        }
-
-        .file-upload i {
-            font-size: 40px;
-            margin-bottom: 10px;
+            margin-bottom: 1rem;
             color: #ff0000;
         }
-
-        .file-upload input {
-            display: none;
+        
+        .form-group {
+            margin-bottom: 1rem;
         }
-
-        .upload-preview {
-            margin-top: 15px;
-            text-align: center;
-        }
-
-        .upload-preview video {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 5px;
-        }
-
-        .progress-bar {
+        
+        .form-group input, .form-group textarea {
             width: 100%;
-            height: 6px;
-            background-color: #303030;
-            border-radius: 3px;
-            margin-top: 10px;
-            overflow: hidden;
-            display: none;
-        }
-
-        .progress {
-            height: 100%;
-            background-color: #ff0000;
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .modal-buttons button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .cancel-btn {
-            background-color: #303030;
+            padding: 0.75rem;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
             color: white;
+            font-size: 1rem;
         }
-
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
         .submit-btn {
             background-color: #ff0000;
             color: white;
-        }
-
-        .submit-btn:disabled {
-            background-color: #555;
-            cursor: not-allowed;
-        }
-
-        /* Back button */
-        .back-btn {
-            display: none;
-            background-color: #303030;
-            color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
             cursor: pointer;
-            margin-bottom: 15px;
-            font-size: 14px;
+            font-size: 1rem;
+            font-weight: bold;
         }
-
-        /* Loading spinner */
+        
         .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .player-container {
-                flex-direction: column;
-            }
-            
-            .video-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            }
-            
-            .search-bar {
-                width: 40%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .video-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .search-bar {
-                width: 100%;
-            }
+            text-align: center;
+            padding: 2rem;
+            color: #888;
         }
     </style>
 </head>
 <body>
-    <!-- Header with Search Bar -->
+    <!-- Header with Search -->
     <header class="header">
-        <div class="logo">
-            <i class="fas fa-play-circle"></i>
-            <span>DarkVideo</span>
-        </div>
+        <div class="logo">VideoShare</div>
         <div class="search-bar">
-            <input type="text" placeholder="Search videos..." id="searchInput">
-            <button class="search-btn">
-                <i class="fas fa-search"></i>
-            </button>
+            <input type="text" id="searchInput" placeholder="🔍 Search videos...">
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Video Grid (Home Page) -->
-        <section class="video-grid" id="videoGrid">
-            <div class="loading-message" style="text-align: center; grid-column: 1/-1; padding: 40px;">
-                <div class="loading"></div>
-                <p>Loading videos...</p>
-            </div>
-        </section>
-
-        <!-- Video Player (Hidden by default) -->
-        <section class="video-player" id="videoPlayer">
-            <button class="back-btn" id="backBtn">
-                <i class="fas fa-arrow-left"></i> Back to Videos
-            </button>
-            <div class="player-container">
-                <div class="main-video">
-                    <div class="video-wrapper">
-                        <video id="mainVideoPlayer" controls>
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                    <div class="video-details">
-                        <h2 class="player-title" id="playerTitle">Video Title</h2>
-                        <div class="player-meta">
-                            <span id="playerViews">1.2M views</span>
-                            <span id="playerDate">2 days ago</span>
-                        </div>
-                        <p id="playerDescription">Video description goes here...</p>
-                    </div>
-                </div>
-                <div class="related-videos">
-                    <h3 class="related-title">Related Videos</h3>
-                    <div class="related-list" id="relatedList">
-                        <!-- Related videos will be generated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- Video Grid -->
+    <main>
+        <div class="video-grid" id="videoGrid">
+            <div class="loading">Loading videos...</div>
+        </div>
     </main>
 
     <!-- Add Video Button -->
-    <div class="add-video-btn" id="addVideoBtn">
-        <i class="fas fa-plus"></i>
-    </div>
+    <button class="add-button" id="addButton">+</button>
 
     <!-- Add Video Modal -->
-    <div class="modal" id="addVideoModal">
+    <div class="modal" id="addModal">
         <div class="modal-content">
-            <h2>Upload New Video</h2>
-            <form id="videoForm">
+            <h2>Upload Video</h2>
+            <form id="uploadForm">
                 <div class="form-group">
-                    <label for="videoTitle">Video Title</label>
-                    <input type="text" id="videoTitle" required>
-                </div>
-                <div class="form-group">
-                    <label for="videoDescription">Description</label>
-                    <textarea id="videoDescription"></textarea>
+                    <input type="text" id="videoTitle" placeholder="Video Title" required>
                 </div>
                 <div class="form-group">
-                    <label for="videoFile">Upload Video</label>
-                    <div class="file-upload" id="fileUploadArea">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Click to select a video file</p>
-                        <p style="font-size: 12px; color: #aaa; margin-top: 5px;">MP4, WebM, or MOV files (Max: 100MB)</p>
-                        <input type="file" id="videoFile" accept="video/*" required>
-                    </div>
-                    <div class="upload-preview" id="uploadPreview"></div>
-                    <div class="progress-bar" id="progressBar">
-                        <div class="progress" id="progress"></div>
-                    </div>
+                    <textarea id="videoDescription" placeholder="Video Description"></textarea>
                 </div>
-                <div class="modal-buttons">
-                    <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
-                    <button type="submit" class="submit-btn" id="submitBtn">
-                        <span id="submitText">Upload Video</span>
-                        <div class="loading" id="submitLoading" style="display: none;"></div>
-                    </button>
+                <div class="form-group">
+                    <input type="url" id="videoUrl" placeholder="Video URL (from cloud storage)" required>
                 </div>
+                <div class="form-group">
+                    <input type="url" id="thumbnailUrl" placeholder="Thumbnail URL (optional)">
+                </div>
+                <div class="form-group">
+                    <input type="number" id="videoDuration" placeholder="Duration in seconds (optional)">
+                </div>
+                <button type="submit" class="submit-btn">Upload Video</button>
             </form>
         </div>
     </div>
 
     <script>
-        // Firebase Configuration - REPLACE WITH YOUR ACTUAL CONFIG
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        // Supabase configuration - USE YOUR ACTUAL KEYS
+        const supabaseUrl = 'https://xypznpyogtgurmmybngl.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5cHpucHlvZ3RndXJtbXlibmdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzY3NjEsImV4cCI6MjA3NDk1Mjc2MX0.4ChzeixP7NvWFndyDcVhCCeT2HvYPwbJV_CmNe6JOw8';
+        
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const storage = firebase.storage();
-        const db = firebase.firestore();
-
-        // DOM Elements
+        // DOM elements
         const videoGrid = document.getElementById('videoGrid');
-        const videoPlayer = document.getElementById('videoPlayer');
-        const mainVideoPlayer = document.getElementById('mainVideoPlayer');
-        const playerTitle = document.getElementById('playerTitle');
-        const playerViews = document.getElementById('playerViews');
-        const playerDate = document.getElementById('playerDate');
-        const playerDescription = document.getElementById('playerDescription');
-        const relatedList = document.getElementById('relatedList');
-        const backBtn = document.getElementById('backBtn');
-        const addVideoBtn = document.getElementById('addVideoBtn');
-        const addVideoModal = document.getElementById('addVideoModal');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const videoForm = document.getElementById('videoForm');
+        const addButton = document.getElementById('addButton');
+        const addModal = document.getElementById('addModal');
+        const uploadForm = document.getElementById('uploadForm');
         const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.querySelector('.search-btn');
-        const fileUploadArea = document.getElementById('fileUploadArea');
-        const videoFileInput = document.getElementById('videoFile');
-        const uploadPreview = document.getElementById('uploadPreview');
-        const progressBar = document.getElementById('progressBar');
-        const progress = document.getElementById('progress');
-        const submitBtn = document.getElementById('submitBtn');
-        const submitText = document.getElementById('submitText');
-        const submitLoading = document.getElementById('submitLoading');
 
-        // Global variables
-        let videos = [];
-        let selectedFile = null;
-
-        // Initialize the page
-        function initializePage() {
-            loadVideosFromFirebase();
-            setupEventListeners();
-        }
-
-        // Set up event listeners
-        function setupEventListeners() {
-            // File upload area click
-            fileUploadArea.addEventListener('click', () => {
-                videoFileInput.click();
-            });
-
-            // File selection
-            videoFileInput.addEventListener('change', handleFileSelect);
-
-            // Back to video grid
-            backBtn.addEventListener('click', () => {
-                videoPlayer.style.display = 'none';
-                videoGrid.style.display = 'grid';
-                backBtn.style.display = 'none';
-                mainVideoPlayer.pause();
-                mainVideoPlayer.src = '';
-            });
-
-            // Add video button
-            addVideoBtn.addEventListener('click', () => {
-                addVideoModal.style.display = 'flex';
-            });
-
-            // Cancel adding video
-            cancelBtn.addEventListener('click', () => {
-                addVideoModal.style.display = 'none';
-                resetForm();
-            });
-
-            // Submit new video form
-            videoForm.addEventListener('submit', uploadVideo);
-
-            // Search functionality
-            searchBtn.addEventListener('click', performSearch);
-            searchInput.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') {
-                    performSearch();
-                }
-            });
-
-            // Close modal when clicking outside
-            window.addEventListener('click', (e) => {
-                if (e.target === addVideoModal) {
-                    addVideoModal.style.display = 'none';
-                    resetForm();
-                }
-            });
-        }
-
-        // Handle file selection
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            // Check file size (max 100MB)
-            if (file.size > 100 * 1024 * 1024) {
-                alert('File size too large. Please select a file smaller than 100MB.');
-                return;
-            }
-
-            selectedFile = file;
-
-            // Show preview
-            const videoURL = URL.createObjectURL(file);
-            uploadPreview.innerHTML = `
-                <video controls>
-                    <source src="${videoURL}" type="${file.type}">
-                    Your browser does not support the video tag.
-                </video>
-                <p style="margin-top: 10px; font-size: 14px;">${file.name} (${formatFileSize(file.size)})</p>
-            `;
-        }
-
-        // Format file size
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        // Reset form
-        function resetForm() {
-            videoForm.reset();
-            uploadPreview.innerHTML = '';
-            selectedFile = null;
-            progressBar.style.display = 'none';
-            progress.style.width = '0%';
-            submitBtn.disabled = false;
-            submitText.style.display = 'inline';
-            submitLoading.style.display = 'none';
-        }
-
-        // Upload video to Firebase
-        async function uploadVideo(e) {
-            e.preventDefault();
-            
-            if (!selectedFile) {
-                alert('Please select a video file to upload.');
-                return;
-            }
-
-            const title = document.getElementById('videoTitle').value;
-            const description = document.getElementById('videoDescription').value;
-
-            // Show loading state
-            submitBtn.disabled = true;
-            submitText.style.display = 'none';
-            submitLoading.style.display = 'inline-block';
-
-            try {
-                // Create a unique filename
-                const timestamp = Date.now();
-                const fileName = `videos/${timestamp}_${selectedFile.name}`;
-                
-                // Upload to Firebase Storage
-                const storageRef = storage.ref().child(fileName);
-                const uploadTask = storageRef.put(selectedFile);
-
-                // Show progress bar
-                progressBar.style.display = 'block';
-
-                // Monitor upload progress
-                uploadTask.on('state_changed',
-                    (snapshot) => {
-                        // Update progress bar
-                        const progressPercent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        progress.style.width = progressPercent + '%';
-                    },
-                    (error) => {
-                        // Handle error
-                        console.error('Upload error:', error);
-                        alert('Error uploading video: ' + error.message);
-                        resetForm();
-                    },
-                    async () => {
-                        // Upload completed
-                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                        
-                        // Create video data for Firestore
-                        const videoData = {
-                            title: title,
-                            description: description,
-                            videoUrl: downloadURL,
-                            thumbnailUrl: '', // We'll generate this later
-                            views: 0,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                            duration: '10:00' // In a real app, you'd calculate this
-                        };
-
-                        // Save to Firestore
-                        await db.collection('videos').add(videoData);
-                        
-                        // Success
-                        alert('Video uploaded successfully!');
-                        addVideoModal.style.display = 'none';
-                        resetForm();
-                        
-                        // Reload videos to show the new one
-                        loadVideosFromFirebase();
-                    }
-                );
-
-            } catch (error) {
-                console.error('Error uploading video:', error);
-                alert('Error uploading video: ' + error.message);
-                resetForm();
-            }
-        }
-
-        // Load videos from Firebase
-        async function loadVideosFromFirebase() {
-            try {
-                const snapshot = await db.collection('videos')
-                    .orderBy('timestamp', 'desc')
-                    .limit(20)
-                    .get();
-                
-                videos = [];
-                snapshot.forEach(doc => {
-                    const videoData = doc.data();
-                    videos.push({
-                        id: doc.id,
-                        ...videoData,
-                        date: formatTimestamp(videoData.timestamp)
-                    });
-                });
-
-                renderVideos(videos);
-            } catch (error) {
-                console.error('Error loading videos:', error);
-                videoGrid.innerHTML = '<div style="text-align: center; grid-column: 1/-1; padding: 40px; color: #ff5555;">Error loading videos. Please try again later.</div>';
-            }
-        }
-
-        // Format Firebase timestamp
-        function formatTimestamp(timestamp) {
-            if (!timestamp) return 'Recently';
-            
-            const date = timestamp.toDate();
-            const now = new Date();
-            const diffMs = now - date;
-            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-            const diffMinutes = Math.floor(diffMs / (1000 * 60));
-            
-            if (diffMinutes < 1) return 'Just now';
-            if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`;
-            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-            
-            return date.toLocaleDateString();
-        }
-
-        // Render videos to the grid
-        function renderVideos(videosToRender) {
-            if (videosToRender.length === 0) {
-                videoGrid.innerHTML = '<div style="text-align: center; grid-column: 1/-1; padding: 40px;">No videos found. Be the first to upload one!</div>';
-                return;
-            }
-
-            videoGrid.innerHTML = '';
-            videosToRender.forEach(video => {
-                const videoCard = document.createElement('div');
-                videoCard.className = 'video-card';
-                videoCard.innerHTML = `
-                    <div class="thumbnail">
-                        <video>
-                            <source src="${video.videoUrl}" type="video/mp4">
-                        </video>
-                        <span class="duration">${video.duration || '10:00'}</span>
-                    </div>
-                    <div class="video-info">
-                        <h3 class="video-title">${video.title}</h3>
-                        <div class="video-meta">
-                            <span>${video.views || 0} views</span>
-                            <span>${video.date}</span>
-                        </div>
-                    </div>
-                `;
-                videoCard.addEventListener('click', () => playVideo(video));
-                videoGrid.appendChild(videoCard);
-            });
-        }
-
-        // Play a video
-        function playVideo(video) {
-            // Hide video grid and show video player
-            videoGrid.style.display = 'none';
-            videoPlayer.style.display = 'block';
-            backBtn.style.display = 'block';
-            
-            // Set video details
-            mainVideoPlayer.src = video.videoUrl;
-            playerTitle.textContent = video.title;
-            playerViews.textContent = `${video.views || 0} views`;
-            playerDate.textContent = video.date;
-            playerDescription.textContent = video.description || 'No description available.';
-            
-            // Generate related videos (excluding the current one)
-            const relatedVideos = videos.filter(v => v.id !== video.id).slice(0, 5);
-            renderRelatedVideos(relatedVideos);
-
-            // Increment view count
-            incrementViewCount(video.id);
-        }
-
-        // Increment view count
-        async function incrementViewCount(videoId) {
-            try {
-                const videoRef = db.collection('videos').doc(videoId);
-                await videoRef.update({
-                    views: firebase.firestore.FieldValue.increment(1)
-                });
-            } catch (error) {
-                console.error('Error updating view count:', error);
-            }
-        }
-
-        // Render related videos
-        function renderRelatedVideos(relatedVideos) {
-            relatedList.innerHTML = '';
-            relatedVideos.forEach(video => {
-                const relatedVideo = document.createElement('div');
-                relatedVideo.className = 'related-video';
-                relatedVideo.innerHTML = `
-                    <div class="related-thumbnail">
-                        <video>
-                            <source src="${video.videoUrl}" type="video/mp4">
-                        </video>
-                    </div>
-                    <div class="related-info">
-                        <h4 class="related-video-title">${video.title}</h4>
-                        <div class="related-channel">DarkVideo</div>
-                        <div class="related-views">${video.views || 0} views • ${video.date}</div>
-                    </div>
-                `;
-                relatedVideo.addEventListener('click', () => playVideo(video));
-                relatedList.appendChild(relatedVideo);
-            });
-        }
+        // Load videos on page load
+        document.addEventListener('DOMContentLoaded', loadVideos);
 
         // Search functionality
-        function performSearch() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            if (searchTerm === '') {
-                renderVideos(videos);
-                return;
+        searchInput.addEventListener('input', debounce(searchVideos, 300));
+
+        // Add video button click
+        addButton.addEventListener('click', () => {
+            addModal.style.display = 'block';
+        });
+
+        // Close modal when clicking outside
+        addModal.addEventListener('click', (e) => {
+            if (e.target === addModal) {
+                addModal.style.display = 'none';
             }
-            
-            const filteredVideos = videos.filter(video => 
-                video.title.toLowerCase().includes(searchTerm) || 
-                (video.description && video.description.toLowerCase().includes(searchTerm))
-            );
-            
-            renderVideos(filteredVideos);
+        });
+
+        // Form submission
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await uploadVideo();
+        });
+
+        // Functions
+        async function loadVideos() {
+            try {
+                const { data: videos, error } = await supabase
+                    .from('videos')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                displayVideos(videos);
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                videoGrid.innerHTML = '<div class="loading">Error loading videos. Please try again.</div>';
+            }
         }
 
-        // Initialize the page
-        initializePage();
+        function displayVideos(videos) {
+            if (videos.length === 0) {
+                videoGrid.innerHTML = '<div class="loading">No videos found. Be the first to upload!</div>';
+                return;
+            }
+
+            videoGrid.innerHTML = videos.map(video => `
+                <div class="video-card" onclick="playVideo('${video.id}')">
+                    <img src="${video.thumbnail_url || 'https://via.placeholder.com/300x180/333/666?text=No+Thumbnail'}" 
+                         alt="${video.title}" class="thumbnail">
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-description">${video.description || 'No description'}</div>
+                        <div class="video-stats">
+                            <span>${video.views} views</span>
+                            <span>${formatTimeAgo(video.created_at)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function searchVideos() {
+            const searchTerm = searchInput.value.trim();
+            
+            if (searchTerm === '') {
+                loadVideos();
+                return;
+            }
+
+            try {
+                const { data: videos, error } = await supabase
+                    .from('videos')
+                    .select('*')
+                    .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                displayVideos(videos);
+            } catch (error) {
+                console.error('Error searching videos:', error);
+            }
+        }
+
+        async function uploadVideo() {
+            const formData = {
+                title: document.getElementById('videoTitle').value,
+                description: document.getElementById('videoDescription').value,
+                video_url: document.getElementById('videoUrl').value,
+                thumbnail_url: document.getElementById('thumbnailUrl').value || 'https://via.placeholder.com/300x180/333/666?text=Video+Thumbnail',
+                duration: parseInt(document.getElementById('videoDuration').value) || 0
+            };
+
+            try {
+                const { data, error } = await supabase
+                    .from('videos')
+                    .insert([formData]);
+
+                if (error) throw error;
+
+                // Reset form and close modal
+                uploadForm.reset();
+                addModal.style.display = 'none';
+                
+                // Reload videos to show the new one
+                loadVideos();
+                
+                alert('Video uploaded successfully!');
+            } catch (error) {
+                console.error('Error uploading video:', error);
+                alert('Error uploading video. Please try again.');
+            }
+        }
+
+        function playVideo(videoId) {
+            // Simple video player - you can enhance this later
+            const video = prompt('Enter video URL to play:');
+            if (video) {
+                window.open(video, '_blank');
+            }
+        }
+
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const created = new Date(timestamp);
+            const diffInHours = Math.floor((now - created) / (1000 * 60 * 60));
+            
+            if (diffInHours < 1) return 'Just now';
+            if (diffInHours < 24) return `${diffInHours}h ago`;
+            return `${Math.floor(diffInHours / 24)}d ago`;
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
     </script>
 </body>
 </html>
